@@ -57,6 +57,29 @@ class NotificationHelper(private val context: Context) {
       // 3
       .setAutoCancel(true)
   }
+  
+    fun createSampleDataNotification(context: Context, title: String, message: String,
+                                   bigText: String, autoCancel: Boolean) {
+
+    val channelId = "${context.packageName}-${context.getString(R.string.app_name)}"
+
+    val notificationBuilder = NotificationCompat.Builder(context, channelId).apply {
+      setSmallIcon(R.drawable.ic_stat_medicine)
+      setContentTitle(title)
+      setContentText(message)
+      setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
+      priority = NotificationCompat.PRIORITY_DEFAULT
+      setAutoCancel(autoCancel)
+      val intent = Intent(context, MainActivity::class.java)
+      intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+      val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+      setContentIntent(pendingIntent)
+    }
+
+    val notificationManager = NotificationManagerCompat.from(context)
+    notificationManager.notify(1001, notificationBuilder.build())
+  }
+
 
   fun getNotification(): Notification {
     // 1
