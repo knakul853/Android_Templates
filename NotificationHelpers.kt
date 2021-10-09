@@ -27,6 +27,31 @@ class NotificationHelper(private val context: Context) {
     )
   }
 
+  
+  /**
+   * Sets up the notification channels for API 26+.
+   * Note: This uses package name + channel name to create unique channelId's.
+   *
+   * @param context     application context
+   * @param importance  importance level for the notificaiton channel
+   * @param showBadge   whether the channel should have a notification badge
+   * @param name        name for the notification channel
+   * @param description description for the notification channel
+   */
+  fun createNotificationChannel(context: Context, importance: Int, showBadge: Boolean, name: String, description: String) {
+
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+
+      val channelId = "${context.packageName}-${name}"
+      val channel = NotificationChannel(channelId, name, importance)
+      channel.description = description
+      channel.setShowBadge(showBadge)
+
+      val notificationManager = context.getSystemService(NotificationManager::class.java)
+      notificationManager.createNotificationChannel(channel)
+    }
+
+  }
 
   private val notificationManager by lazy {
     context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -58,7 +83,19 @@ class NotificationHelper(private val context: Context) {
       .setAutoCancel(true)
   }
   
-    fun createSampleDataNotification(context: Context, title: String, message: String,
+  /**
+   * Helps issue the default application channels (package name + app name) notifications.
+   * Note: this shows the use of [NotificationCompat.BigTextStyle] for expanded notifications.
+   *
+   * @param context    current application context
+   * @param title      title for the notification
+   * @param message    content text for the notification when it's not expanded
+   * @param bigText    long form text for the expanded notification
+   * @param autoCancel `true` or `false` for auto cancelling a notification.
+   * if this is true, a [PendingIntent] is attached to the notification to
+   * open the application.
+   */
+  fun createSampleDataNotification(context: Context, title: String, message: String,
                                    bigText: String, autoCancel: Boolean) {
 
     val channelId = "${context.packageName}-${context.getString(R.string.app_name)}"
@@ -79,6 +116,7 @@ class NotificationHelper(private val context: Context) {
     val notificationManager = NotificationManagerCompat.from(context)
     notificationManager.notify(1001, notificationBuilder.build())
   }
+
 
 
   fun getNotification(): Notification {
